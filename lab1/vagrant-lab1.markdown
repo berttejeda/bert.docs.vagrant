@@ -33,7 +33,7 @@ Moving on.
 
 Notice the navigation bar at the <a href="#" class="flash" data-selector="#topnav" data-duration="300">top</a>. 
 
-There are several buttons, one of which reads <a href="#" class="menu-toggle">Toggle Sidebar</a>
+There are several buttons, one of which reads <a href="#" class="menu-toggle">Sidebar</a>
 
 Clicking it will reveal a navigation menu on the left. That's pretty much all you need to know to get around this document.
 

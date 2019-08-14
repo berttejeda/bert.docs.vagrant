@@ -32,15 +32,11 @@ The process is rather involved, and is essentially a conversion from **.vmdk** =
 
 ### Installation
 
-I've provided a means of installing **all** the requirements for this lab.
+If you're on Windows and have activated this document as a .hta or via Internet Explorer (with Active X Controls allowed), <br />
+just click the <a href="#" class="flash" data-selector="#requirements" data-duration="300">Install Lab Requirements</a> button above to get started with the requirements.<br />
+It's rather experimental and may not work, so be warned!<br />
 
-Just click the <a href="#" class="flash" data-selector="#requirements" data-duration="300">Install Lab Requirements</a> button above.
-
-It's rather experimental and may not work, but you can give it a try (again, only if you're on Windows).<br />
-
-You'll be presented with an installation page from which you can choose to install everything you need.
-
-If that doesn't work, you can opt to install vagrant **manually**, as follows:
+If that doesn't work or you're not on Windows/IE, you can opt to install vagrant **manually**, as follows:
 
 1. Navigate to the vagrant downloads site: [vagrant downloads](https://www.vagrantup.com/downloads.html)
 1. Once downloaded, launch the installer and follow the prompts
