@@ -32,17 +32,20 @@ The process is rather involved, and is essentially a conversion from **.vmdk** =
 
 ### Installation
 
-To install vagrant:
+I've provided a means of installing **all** the requirements for this lab.
+
+Just click the <a href="#" class="flash" data-selector="#requirements" data-duration="300">Install Lab Requirements</a> button above.
+
+It's rather experimental and may not work, but you can give it a try (again, only if you're on Windows).<br />
+
+You'll be presented with an installation page from which you can choose to install everything you need.
+
+If that doesn't work, you can opt to install vagrant **manually**, as follows:
 
 1. Navigate to the vagrant downloads site: [vagrant downloads](https://www.vagrantup.com/downloads.html)
 1. Once downloaded, launch the installer and follow the prompts
   - The installer will make the `vagrant` command available to your command-line terminal via your *PATH* variable
   - If upon installation, the `vagrant` command is not found, you may need to restart whatever terminal you have open, e.g. cmd, bash, iterm2, cygwin, etc
-
-Some notes:
-
-- The <a href="#" class="flash" data-selector="#requirements" data-duration="300">Install Lab Requirements</a> button above is experimental and may not work, but you can give it a try (again, only if you're on Windows).<br />
-  You'll be presented with an installation menu from which you can choose to install vagrant, among other tools.
 
 I **highly** recommend you install the following applications along with **vagrant**:
   - [cmder](http://cmder.net/)<br />
