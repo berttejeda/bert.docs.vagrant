@@ -12,7 +12,7 @@
     header: _common/templates/header.html
     css: _common/templates/default.css
     watch_patterns: .*
-    VERSION_STRING: 19.08.08.00
+    VERSION_STRING: 19.08.13.26
     vagrant_machine: default
     DELIM: _@DELIM@_
     interval: 1
