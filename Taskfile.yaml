@@ -17,11 +17,16 @@
     DELIM: _@DELIM@_
     interval: 1
     required_parameters:
-      --source|-s: [source,2] ## some/markdown/file.md,some/other/markdown/file2.md,includes/* 
-      --output|-o: output ## some/output/file.html
+      lab:
+        --source|-s: [source,2] ## Additional Includes, e.g. some/markdown/file.md includes/* 
+      --output|-o: output ## Output file, e.g. /some/output/file.html
+      --template|-t: template ## Markdown template, e.g. /some/path/document.html
+      loader:
+        --lab-uri|-ur: LAB_URI ## Document URL
+        --lab-uri-fallback|-urf: LAB_URI_FALLBACK ## Document Fallback
+        --source|-s: [source] ## Additional Includes, e.g. some/markdown/file.md some/other/markdown/file2.md
     optional_parameters:
       --css|-c: css ## some/style.css
-      --template|-t: template ## Override default markdown template
       --docroot|-r: docroot ## Override document root
       --header|-H: header ## Override header template
       --ppvars|-p: ppvars ## Specify extra pre-processor variables
@@ -41,13 +46,13 @@
       epilog:
       examples:
         - Build the self-contained interactive document: |
-            tasks run -s 'lab1/vagrant-lab1.markdown' 'lab1/includes/*.md' -o lab1/vagrant-lab1.hta -r https://github.com/berttejeda/bert.docs.git -t lab1/templates/vagrant-lab1.html ---make build
+            tasks lab run -s 'lab1/vagrant-lab1.markdown' 'lab1/includes/*.md' -o lab1/vagrant-lab1.hta -r https://github.com/berttejeda/bert.docs.git -t lab1/templates/vagrant-lab1.html ---make build
         - Build the self-contained interactive document, and rebuild when any markdown files change: |
-            tasks run -s 'lab1/vagrant-lab1.markdown' 'lab1/includes/*.md' -o lab1/vagrant-lab1.hta -r https://github.com/berttejeda/bert.docs.git -t lab1/templates/vagrant-lab1.html ---make build --watch --patterns '*.markdown;*.md'
+            tasks lab run -s 'lab1/vagrant-lab1.markdown' 'lab1/includes/*.md' -o lab1/vagrant-lab1.hta -r https://github.com/berttejeda/bert.docs.git -t lab1/templates/vagrant-lab1.html ---make build --watch --patterns '*.markdown;*.md'
         - Display the underlying pp/pandoc commands: |
-            tasks run -s 'lab1/vagrant-lab1.markdown' 'lab1/includes/*.md' -o lab1/vagrant-lab1.hta -r https://github.com/berttejeda/bert.docs.git -t lab1/templates/vagrant-lab1.html ---make build --dry
+            tasks lab run -s 'lab1/vagrant-lab1.markdown' 'lab1/includes/*.md' -o lab1/vagrant-lab1.hta -r https://github.com/berttejeda/bert.docs.git -t lab1/templates/vagrant-lab1.html ---make build --dry
         - Skip preflight checks: |
-            tasks run -s 'lab1/vagrant-lab1.markdown' 'lab1/includes/*.md' -o lab1/vagrant-lab1.hta -r https://github.com/berttejeda/bert.docs.git -t lab1/templates/vagrant-lab1.html ---make build --skip-preflight
+            tasks lab run -s 'lab1/vagrant-lab1.markdown' 'lab1/includes/*.md' -o lab1/vagrant-lab1.hta -r https://github.com/berttejeda/bert.docs.git -t lab1/templates/vagrant-lab1.html ---make build --skip-preflight
     functions:
       check_exe:
         shell: bash
@@ -77,6 +82,8 @@
               docroot=${docroot_tmp}
               cd "${curr_dir}"
             fi
+          else
+            echo "OK, proceeding ..."
           fi
       build_pp_vars:
         shell: bash
@@ -97,7 +104,7 @@
           pp_commands+="${source} "
       build_pandoc_commands:
         shell: bash
-        help: Build Pre-Processor Vars
+        help: Derive pandoc commands for building lab document
         hidden: true
         source: |-
           output_file=${output-${source%.*}.html}
@@ -122,6 +129,34 @@
               pandoc_commands+="--self-contained "
               pandoc_commands+=" --standalone "
           fi
+      build_pandoc_commands_loader:
+        shell: bash
+        help: Derive pandoc commands for building loader
+        hidden: true
+        source: |-
+          echo Deriving pandoc commands for building the loader ...
+          output_file=${output-${source%.*}.html}
+          pandoc_commands="pandoc "
+          pandoc_commands+="-o ${output_file} "
+          pandoc_commands+="--template ${template} "
+          pandoc_commands+="-V VERSION_STRING=${VERSION_STRING} "
+          pandoc_commands+="-V LAB_URI=${LAB_URI} "
+          pandoc_commands+="-V LAB_URI_FALLBACK=${LAB_URI_FALLBACK} "
+          if [[ $vars ]];then
+              vars=${vars//${DELIM}/ -V }
+              option='-V '
+              pandoc_commands+="-V ${vars: :-${#option}} " # strip the trailing option
+          fi
+          pandoc_commands+="-V docroot=${docroot} "
+          if [[ $metavars ]];then
+              metavars=${metavars//${DELIM}/ --metadata }
+              option="--metadata "
+              pandoc_commands+="--metadata ${metavars: :-${#option}} " # strip the trailing option
+          fi
+          if [[ -z $noaio ]];then 
+              pandoc_commands+="--self-contained "
+              pandoc_commands+=" --standalone "
+          fi          
       build:
         shell: bash
         help: Build output file
@@ -135,8 +170,8 @@
             fi        
           fi
           check_docroot
-          build_pp_vars
-          build_pandoc_commands
+          build_pp_vars_loader
+          build_pandoc_commands_loader
           if [[ -n $dry_run ]];then
             echo ${pp_commands} \| ${pandoc_commands}
             return
@@ -148,6 +183,32 @@
               echo "Build failed."
               exit 1
           fi
+      build_loader:
+        shell: bash
+        help: Build the HTA loader
+        source: |-
+          if [[ "$parameter_set" != "loader" ]];then
+            echo You must invoke this tasks via the 'loader' parameter set
+            return
+          fi
+          if [[ -z $skip_preflight ]];then
+            if ! check_exe pandoc https://pandoc.org/installing.html;then
+              return 1
+            fi
+          fi
+          check_docroot
+          build_pandoc_commands_loader
+          if [[ -n $dry_run ]];then
+            echo -e "echo | ${pandoc_commands}"
+            return
+          fi         
+          echo "Issuing build"
+          if echo | ${pandoc_commands};then
+              echo "Done. Output file is ${output_file}"
+          else
+              echo "Build failed."
+              exit 1
+          fi          
       build_and_watch:
         shell: bash
         help: Build output file and watch for changes
