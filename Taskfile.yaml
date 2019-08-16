@@ -19,12 +19,12 @@
     required_parameters:
       lab:
         --source|-s: [source,2] ## Additional Includes, e.g. some/markdown/file.md includes/* 
-      --output|-o: output ## Output file, e.g. /some/output/file.html
-      --template|-t: template ## Markdown template, e.g. /some/path/document.html
+        --template|-t: template ## Markdown template, e.g. /some/path/document.html
       loader:
         --lab-uri|-ur: LAB_URI ## Document URL
         --lab-uri-fallback|-urf: LAB_URI_FALLBACK ## Document Fallback
         --source|-s: [source] ## Additional Includes, e.g. some/markdown/file.md some/other/markdown/file2.md
+      --output|-o: output ## Output file, e.g. /some/output/file.html
     optional_parameters:
       --css|-c: css ## some/style.css
       --docroot|-r: docroot ## Override document root
@@ -126,6 +126,7 @@
               pandoc_commands+="--metadata ${metavars: :-${#option}} " # strip the trailing option
           fi
           if [[ -z $noaio ]];then 
+              echo Building as self-contained document ...
               pandoc_commands+="--self-contained "
               pandoc_commands+=" --standalone "
           fi
@@ -170,8 +171,8 @@
             fi        
           fi
           check_docroot
-          build_pp_vars_loader
-          build_pandoc_commands_loader
+          build_pp_vars
+          build_pandoc_commands
           if [[ -n $dry_run ]];then
             echo ${pp_commands} \| ${pandoc_commands}
             return
